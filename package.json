@@ -1,0 +1,33 @@
+{
+  "name": "namstereact",
+  "version": "1.0.0",
+  "description": "This is react by akshay saini",
+  "scripts": {
+    "test": "jest",
+    "start": "parcel index.html",
+    "build": "parcel build index.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "(https://github.com/abssailesh/NamsteReact.git)"
+  },
+  "keywords": [
+    "react",
+    "namasthey",
+    "react"
+  ],
+  "author": "sailesh",
+  "license": "ISC",
+  "devDependencies": {
+    "parcel": "^2.13.3",
+    "process": "^0.11.10"
+  },
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^6.30.0"
+  },
+  "browserslist": [
+    "last 2 versions"
+  ]
+}
