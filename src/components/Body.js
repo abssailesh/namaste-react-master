@@ -2,13 +2,14 @@
 import RestaurantCard from "./RestaurantCard";
 import { useState, useEffect } from "react";
 import Shimmer from "./Shimmer";
+import { Link } from "react-router-dom";
+import useOnlineStatus from "../utils/useOnlineStatus";
 
 const Body = () => {
   // Local State Variable - Super powerful variable
-  const [listOfRestaurants, setListOfRestraunt] = useState([]);
+  const [listOfRestaurants, setListOfRestauraunt] = useState([]);
   const [filteredRestaurant, setFilteredRestaurant] = useState([]);
-
-  const [searchText, setSearchText] = useState("");
+  const [searchText, setSearchText] = useState(" ");
 
   // Whenever state variables update, react triggers a reconciliation cycle(re-renders the component)
   console.log("Body Rendered");
@@ -25,9 +26,11 @@ const Body = () => {
     console.log(json);
 
     // Optional Chaining
-    setListOfRestraunt(json?.data?.cards[4]?.card?.card?.gridElements?.infoWithStyle?.restaurants);
+    setListOfRestauraunt(json?.data?.cards[4]?.card?.card?.gridElements?.infoWithStyle?.restaurants);
     setFilteredRestaurant(json?.data?.cards[4]?.card?.card?.gridElements?.infoWithStyle?.restaurants);
   };
+  const onlineStatus = useOnlineStatus();
+  if(onlineStatus===false) return <h1>Looks like you are offline !!! Please Check your internet Connection</h1>
 
   return listOfRestaurants.length === 0 ? (
     <Shimmer />
@@ -73,7 +76,7 @@ const Body = () => {
       </div>
       <div className="res-container">
         {filteredRestaurant.map((restaurant) => (
-          <RestaurantCard key={restaurant.info.id} resData={restaurant} />
+          <Link key={restaurant.info.id} to={"/restaurants/"+ restaurant.info.id}><RestaurantCard  resData={restaurant} /></Link>
         ))}
       </div>
     </div>
