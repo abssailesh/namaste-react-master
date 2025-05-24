@@ -1,69 +1,71 @@
-
-import RestaurantCard from "./RestaurantCard";
+import RestaurantCard, {withPromotedLabel}  from "./RestaurantCard";
 import { useState, useEffect } from "react";
 import Shimmer from "./Shimmer";
 import { Link } from "react-router-dom";
 import useOnlineStatus from "../utils/useOnlineStatus";
 
 const Body = () => {
-  // Local State Variable - Super powerful variable
   const [listOfRestaurants, setListOfRestauraunt] = useState([]);
   const [filteredRestaurant, setFilteredRestaurant] = useState([]);
-  const [searchText, setSearchText] = useState(" ");
+  const [searchText, setSearchText] = useState("");
+  const RestaurantCardPromoted = withPromotedLabel(RestaurantCard);
 
-  // Whenever state variables update, react triggers a reconciliation cycle(re-renders the component)
-  console.log("Body Rendered");
 
   useEffect(() => {
     fetchData();
   }, []);
 
-  const fetchData = async () => {
-    const data = await fetch("https://www.swiggy.com/dapi/restaurants/list/v5?lat=21.99740&lng=79.00110&is-seo-homepage-enabled=true&page_type=DESKTOP_WEB_LISTING");
+  // console.log(listOfRestaurants)
 
+  const fetchData = async () => {
+    const data = await fetch(
+      "https://www.swiggy.com/dapi/restaurants/list/v5?lat=12.931842&lng=77.60850270000002&is-seo-homepage-enabled=true&page_type=DESKTOP_WEB_LISTING"
+    );
     const json = await data.json();
 
-    console.log(json);
-
-    // Optional Chaining
-    setListOfRestauraunt(json?.data?.cards[4]?.card?.card?.gridElements?.infoWithStyle?.restaurants);
-    setFilteredRestaurant(json?.data?.cards[4]?.card?.card?.gridElements?.infoWithStyle?.restaurants);
+    const restaurants = json?.data?.cards[4]?.card?.card?.gridElements?.infoWithStyle?.restaurants;
+    console.log(restaurants)
+    setListOfRestauraunt(restaurants);
+    setFilteredRestaurant(restaurants);
   };
+
   const onlineStatus = useOnlineStatus();
-  if(onlineStatus===false) return <h1>Looks like you are offline !!! Please Check your internet Connection</h1>
+  if (!onlineStatus)
+    return (
+      <h1 className="text-center text-xl font-semibold mt-10 text-red-600">
+        Looks like you are offline! Please check your internet connection.
+      </h1>
+    );
 
   return listOfRestaurants.length === 0 ? (
     <Shimmer />
   ) : (
-    <div className="body">
-      <div className="filter">
-        <div className="search">
+    <div className="px-6 py-6 max-w-7xl mx-auto">
+      {/* Search & Filter */}
+      <div className="flex flex-col md:flex-row items-center justify-between mb-6 gap-4">
+        <div className="flex gap-2 w-full md:w-auto">
           <input
             type="text"
-            className="search-box"
+            placeholder="Search restaurants..."
+            className="px-4 py-2 border border-gray-300 rounded-md w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={searchText}
-            onChange={(e) => {
-              setSearchText(e.target.value);
-            }}
+            onChange={(e) => setSearchText(e.target.value)}
           />
           <button
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
             onClick={() => {
-              // Filter the restraunt cards and update the UI
-              // searchText
-              console.log(searchText);
-
-              const filteredRestaurant = listOfRestaurants.filter((res) =>
+              const filtered = listOfRestaurants.filter((res) =>
                 res.info.name.toLowerCase().includes(searchText.toLowerCase())
               );
-
-              setFilteredRestaurant(filteredRestaurant);
+              setFilteredRestaurant(filtered);
             }}
           >
             Search
           </button>
         </div>
+
         <button
-          className="filter-btn"
+          className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition"
           onClick={() => {
             const filteredList = listOfRestaurants.filter(
               (res) => res.info.avgRating > 4.3
@@ -74,9 +76,13 @@ const Body = () => {
           Top Rated Restaurants
         </button>
       </div>
-      <div className="res-container">
+
+      {/* Restaurant Grid */}
+      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {filteredRestaurant.map((restaurant) => (
-          <Link key={restaurant.info.id} to={"/restaurants/"+ restaurant.info.id}><RestaurantCard  resData={restaurant} /></Link>
+          <Link key={restaurant.info.id} to={`/restaurants/${restaurant.info.id}`}>
+            {restaurant.info.isOpen ? (<RestaurantCardPromoted resData={restaurant} />):(<RestaurantCard resData={restaurant} />)}
+          </Link>
         ))}
       </div>
     </div>
